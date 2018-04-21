@@ -15,15 +15,8 @@ public class Receipt {
     public double CalculateGrandTotal(List<Product> products, List<OrderItem> items) {
         BigDecimal subTotal = calculateSubtotal(products, items);
 
-        for (Product product : products) {
-            OrderItem curItem = findOrderItemByProduct(items, product);
-
-            BigDecimal reducedPrice = product.getPrice()
-                    .multiply(product.getDiscountRate())
-                    .multiply(new BigDecimal(curItem.getCount()));
-
-            subTotal = subTotal.subtract(reducedPrice);
-        }
+        BigDecimal discount = calculateDiscount(products, items);
+        subTotal =  subTotal.subtract(discount);
         BigDecimal taxTotal = subTotal.multiply(tax);
         BigDecimal grandTotal = subTotal.add(taxTotal);
 
@@ -42,6 +35,7 @@ public class Receipt {
         return curItem;
     }
 
+    //计算原始的总价
     private BigDecimal calculateSubtotal(List<Product> products, List<OrderItem> items) {
         BigDecimal subTotal = new BigDecimal(0);
         for (Product product : products) {
@@ -50,5 +44,18 @@ public class Receipt {
             subTotal = subTotal.add(itemTotal);
         }
         return subTotal;
+    }
+    //计算商品的折扣
+    private  BigDecimal calculateDiscount(List<Product> products, List<OrderItem> items){
+        BigDecimal reducedPriceAmount = new BigDecimal(0);
+        for (Product product : products) {
+            OrderItem curItem = findOrderItemByProduct(items, product);
+
+            BigDecimal reducedPrice = product.getPrice()
+                    .multiply(product.getDiscountRate())
+                    .multiply(new BigDecimal(curItem.getCount()));
+            reducedPriceAmount = reducedPriceAmount.add(reducedPrice);
+        }
+        return reducedPriceAmount;
     }
 }
